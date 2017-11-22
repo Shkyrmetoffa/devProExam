@@ -1,0 +1,112 @@
+const newsFeed = (function() {
+    let instance;
+    return {
+        getInstance() {
+            if (!instance) {
+                instance = {
+                    _articles: [],
+                    _isBusy: false,
+                    init(articles) {
+                        if (
+                            articles &&
+                            articles.length &&
+                            articles.every(item => item.title && item.content)
+                        ) {
+                            this._articles = articles;
+                        } else {
+                            return false;
+                        }
+                    },
+                    addArticle(article, cb) {
+                        this._isBusy ? false : (this._isBusy = true);
+
+                        if (
+                            article &&
+                            article.hasOwnProperty('title') &&
+                            article.hasOwnProperty('content')
+                        ) {
+                            setTimeout(() => {
+                                this._articles.push(article);
+                                this._isBusy = false;
+                                cb();
+                            }, 4);
+                        } else {
+                            this.isBusy = false;
+                            return false;
+                        }
+                    },
+                    removeArticle(article, cb) {
+                        this._isBusy ? false : (this._isBusy = true);
+
+                        if (
+                            article &&
+                            article.hasOwnProperty('title') &&
+                            article.hasOwnProperty('content')
+                        ) {
+                            setTimeout(() => {
+                                const removedArt = this._articles.indexOf(
+                                    article
+                                );
+                                if (removedArt !== -1) {
+                                    this._articles.splice(removedArt, 1);
+                                    this._isBusy = false;
+                                    cb(article);
+                                } else {
+                                    this._isBusy = false;
+                                    cb(null);
+                                }
+                            }, 4);
+                        } else {
+                            return false;
+                        }
+                    },
+                    find(functor, cb) {
+                        this._isBusy ? false : (this._isBusy = true);
+                        if (functor) {
+                            setTimeout(() => {
+                                const firstArticle = this._articles.find(
+                                    functor
+                                );
+                                this._isBusy = false;
+                                cb(firstArticle || null);
+                            }, 4);
+                        } else {
+                            return false;
+                        }
+                    },
+                    query(queryString) {
+                        let newArr = this._articles.filter(item => {
+                            let str = item.title + item.content;
+                            if (str.match(queryString)) {
+                                return item;
+                            }
+                        });
+                        if (newArr.length) {
+                            return newArr.sort((prev, next) => {
+                                const prevLength = prev.title + prev.content;
+                                const nextLength = next.title + next.content;
+                                const reg = new RegExp(queryString, 'g');
+                                if (
+                                    prevLength.match(reg).length >
+                                    nextLength.match(reg).length
+                                ) {
+                                    return prevLength.match(reg).length;
+                                } else {
+                                    return nextLength.match(reg).length;
+                                }
+                            });
+                        } else {
+                            return [];
+                        }
+                    },
+                };
+            }
+            return instance;
+        },
+    };
+})();
+module.exports = {
+    firstName: 'Jane',
+    lastName: 'Shkyrmetoffa',
+    task: newsFeed,
+};
